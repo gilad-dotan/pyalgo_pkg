@@ -1,0 +1,1 @@
+move_same_value_to_default_values = ['down', 'up']

@@ -1,0 +1,37 @@
+each cipher class in the algocryption should contain the following functions:
+-encrypt
+-decrypt
+-save_key
+-load_key
+-clear_key
+-check_if_key_is_valid
+
+-- encrypt(msg_to_encrypt, key)  # the function should have two parameters: msg_to_encrypt and key
+   |
+   -> the function should get string, list, bytes, bytearray
+   |
+   -> the function should return a bytearray in addition to all of the other possible output types
+
+-- decrypt(msg_to_encrypt, key)  # the function should have two parameters: msg_to_encrypt and key
+   |
+   -> the function should get string, list, bytes, bytearray
+   |
+   -> the function should return a bytearray in addition to all of the other possible output types
+
+-- save_key(key, dir, filename="key.{encryption method}")  # the function should have three parameters: key, dir, filename(filename is optional)
+   |
+   -> the function should save the key as a txt format, if the user didn't anything to the dir parameter then the function should save the saved key in the same directory as the script
+
+-- load_key(dir)  # the function should have one parameters: dir
+   |
+   -> the function should load the key from the directory given, the user can also enter just the filename if the file is in the same directory
+   |
+   -> this function should also except a string as an input
+
+-- clear_key()  # this function don't take any parameters
+   |
+   -> this function deletes the keys saved in the class
+
+-- check_if_key_is_valid()  # this function takes the key is a parameter. if the key is not entered, then the function should check the class attribute as the key
+   |
+   -> this function check if the key entered is valid to the algorithm

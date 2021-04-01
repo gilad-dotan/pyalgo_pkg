@@ -548,10 +548,7 @@ class RSA():
 
         if apply_hashing:
             if hashing_algorithm == None:
-                if isinstance(msg_to_sign, StringType):
-                    msg_to_sign = hashing_algorithms.sha256(msg_to_sign.encode())
-                else:
-                    msg_to_sign = hashing_algorithms.sha256(msg_to_sign)
+                msg_to_sign = hashing_algorithms.sha256(msg_to_sign)
             else:
                 msg_to_sign = hashing_algorithm(msg_to_sign)
 
@@ -577,10 +574,7 @@ class RSA():
 
         if apply_hashing:
             if hashing_algorithm == None:
-                if isinstance(msg, StringType):
-                    msg = hashing_algorithms.sha256(msg.encode())
-                else:
-                    msg = hashing_algorithms.sha256(msg)
+                msg = hashing_algorithms.sha256(msg)
             else:
                 msg = hashing_algorithm(msg)
 
@@ -612,6 +606,10 @@ class RSA():
         #// checking the jump value for faster encryption \\
         while not is_chunk_jump_correct:
             try:
+                if chunk_jump == len(msg_to_encrypt):
+                    chunk_jump -= 1
+                    is_chunk_jump_correct = True
+
                 encrypted_text = bytes()
                 #(math.ceil(len(msg_to_encrypt) / chunk_jump))
                 pre_encrypted_chunk = msg_to_encrypt[0 * chunk_jump:1 * chunk_jump]

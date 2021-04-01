@@ -15,8 +15,8 @@ import as ['import pyalgo']()
 **Gmail:**  
 gilad.dotann@gmail.com
 
-**Github:**
-
+**Github:**  
+https://github.com/gilad-dotan/pyalgo_pkg
 
 
 # The new features:

@@ -27,6 +27,7 @@ https://github.com/gilad-dotan/pyalgo_pkg
 **Algocryption:**  
 
 I added algocryption which is a directory for encryption algorithms:  
--Including 'RSA'\
--XOR\
--Simple columnar Transposition
+-Including 'RSA'   
+-XOR   
+-Simple columnar Transposition   
+-SHA256

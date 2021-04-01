@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="pyalgo_pkg",
-    version="0.0.6",
+    version="0.0.7",
     author="Gilad Dotan",
     author_email="gilad.dotann@egmail.com",
     description="A package for basic algorithms",

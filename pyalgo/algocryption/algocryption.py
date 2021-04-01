@@ -4,6 +4,7 @@ from . import functions_for_in_time_compile
 from . import compiled_functions
 
 import math
+import time
 import copy
 import random
 import hashlib
@@ -11,8 +12,13 @@ import hashlib
 """
 sites used to create this encryption function:
 ---> I found some encryption algorithms from this site: https://www.thesslstore.com/blog/types-of-encryption-encryption-algorithms-how-to-choose-the-right-one/
-->I found some information on RSA from those sites:
---->https://cryptobook.nakov.com/asymmetric-key-ciphers/rsa-encrypt-decrypt-examples
+
+-> I have found some information on RSA from those sites:
+---> https://cryptobook.nakov.com/asymmetric-key-ciphers/rsa-encrypt-decrypt-examples
+
+-> I have found some information on SHA256 from those sites:
+---> https://www.youtube.com/watch?v=f9EbD6iY9zI&t=3s
+---> https://qvault.io/cryptography/how-sha-2-works-step-by-step-sha-256/
 """
 
 
@@ -95,7 +101,236 @@ class hashing_algorithms:
 
     @staticmethod
     def sha256(msg):
-        return hashlib.sha256(msg).digest()
+        # // check if the msg entered is valid \\
+        StringType = default_values.StringType
+        ByteType = default_values.ByteType
+        ByteArrayType = default_values.ByteArrayType
+
+        if not (isinstance(msg, StringType) or
+                isinstance(msg, ByteType) or
+                isinstance(msg, ByteArrayType)):
+            raise TypeError("'msg' should be a String type, a Bytes type or a ByteArrayType")
+
+        # // constants \\
+        WORD_SIZE = 32
+        MAX_WORDS = 64
+        BLOCK_SIZE = 512
+
+        a = 0
+        b = 1
+        c = 2
+        d = 3
+        e = 4
+        f = 5
+        g = 6
+        h = 7
+
+        K = [0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
+             0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3, 0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174,
+             0xe49b69c1, 0xefbe4786, 0x0fc19dc6, 0x240ca1cc, 0x2de92c6f, 0x4a7484aa, 0x5cb0a9dc, 0x76f988da,
+             0x983e5152, 0xa831c66d, 0xb00327c8, 0xbf597fc7, 0xc6e00bf3, 0xd5a79147, 0x06ca6351, 0x14292967,
+             0x27b70a85, 0x2e1b2138, 0x4d2c6dfc, 0x53380d13, 0x650a7354, 0x766a0abb, 0x81c2c92e, 0x92722c85,
+             0xa2bfe8a1, 0xa81a664b, 0xc24b8b70, 0xc76c51a3, 0xd192e819, 0xd6990624, 0xf40e3585, 0x106aa070,
+             0x19a4c116, 0x1e376c08, 0x2748774c, 0x34b0bcb5, 0x391c0cb3, 0x4ed8aa4a, 0x5b9cca4f, 0x682e6ff3,
+             0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208, 0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2, ]
+
+        FIRST_HASH_VLUES = [0x6A09E667, 0xBB67AE85, 0x3C6EF372, 0xA54FF53A, 0x510E527F, 0x9B05688C, 0x1F83D9AB,
+                            0x5BE0CD19]
+
+        initial_hash = [0x6A09E667, 0xBB67AE85, 0x3C6EF372, 0xA54FF53A, 0x510E527F, 0x9B05688C, 0x1F83D9AB,
+                        0x5BE0CD19]
+
+        # // transfer the constants into binary \\
+        for i in range(len(K)):
+            K[i] = str(bin(K[i]))[2:].zfill(32)
+        for i in range(len(FIRST_HASH_VLUES)):
+            FIRST_HASH_VLUES[i] = str(bin(FIRST_HASH_VLUES[i]))[2:].zfill(32)
+        for i in range(len(initial_hash)):
+            initial_hash[i] = str(bin(initial_hash[i]))[2:].zfill(32)
+
+        # // initializing some basic operations \\
+        def shift_right(bits, shiftNum):
+            bits = ("0" * shiftNum) + bits
+            return bits[:(len(bits)-shiftNum)]
+
+        def rotate_right(bits, rotateNum):
+            rotateNum = rotateNum % len(bits)
+            if rotateNum == 0:
+                return bits
+            bits = bits[-rotateNum:] + bits
+            return bits[:-rotateNum]
+
+        def add(a, b):
+            """
+            this function takes 2 binary numbers add them together
+            and then return the modulo 2^32 binary number
+            """
+            a = int(a, 2)
+            b = int(b, 2)
+            #result = (a+b)%(2**32)
+            result = str(bin(a+b))[2:]
+            return result[-32:].zfill(WORD_SIZE)
+
+        # // initializing some functions \\
+        def lower_sigma0(bits):
+            x1 = int(rotate_right(bits, 7), 2)
+            x2 = int(rotate_right(bits, 18), 2)
+            x3 = int(shift_right(bits, 3), 2)
+
+            return str(bin(x1 ^ x2 ^ x3))[2:].zfill(WORD_SIZE)
+
+
+        def lower_sigma1(bits):
+            x1 = int(rotate_right(bits, 17), 2)
+            x2 = int(rotate_right(bits, 19), 2)
+            x3 = int(shift_right(bits, 10), 2)
+
+            return str(bin(x1 ^ x2 ^ x3))[2:].zfill(WORD_SIZE)
+
+
+        def upper_sigma0(bits):
+            x1 = int(rotate_right(bits, 2), 2)
+            x2 = int(rotate_right(bits, 13), 2)
+            x3 = int(rotate_right(bits, 22), 2)
+
+            return str(bin(x1 ^ x2 ^ x3))[2:].zfill(WORD_SIZE)
+
+        def upper_sigma1(bits):
+            x1 = int(rotate_right(bits, 6), 2)
+            x2 = int(rotate_right(bits, 11), 2)
+            x3 = int(rotate_right(bits, 25), 2)
+
+            return str(bin(x1 ^ x2 ^ x3))[2:].zfill(WORD_SIZE)
+
+        def choice(x, y, z):
+            result = ""
+            for i in range(len(x)):
+                if x[i] == "1":
+                    result += y[i]
+                elif x[i] == "0":
+                    result += z[i]
+            return result.zfill(WORD_SIZE)
+
+        def majority(x, y, z):
+            result = ""
+            temp = None
+            for i in range(len(x)):
+                temp = int(x[i]) + int(y[i]) + int(z[i])
+                if temp >= 2:
+                    result += "1"
+                else:
+                    result += "0"
+            return result.zfill(WORD_SIZE)
+
+
+        # // transferring the msg to bytes if it is a string \\
+        if isinstance(msg, StringType):
+            msg = msg.encode()
+
+
+        # // transferring to binary according to the ascci table \\
+        msg = default_functions.values_to_single_number.bytes_to_single_num(msg)
+        str_msg = str(bin(msg))[3:]
+        msg = str(bin(msg))[3:]
+
+        if len(msg) > int("1"*64, 2):
+            raise ValueError(f"the input msg should be less than {int('1'*64, 2)}")
+
+        ##############for i in range(len(str_msg)):
+        ##############    if i % 8 == 0:
+        ##############        print(" ", end="")
+        ##############    print(str_msg[i], end="")
+        ##############print("")
+
+        #// adds a single '1' at the end of the binary string \\
+        str_msg += "1"
+        ##############for i in range(len(str_msg)):
+        ##############    if i % 8 == 0:
+        ##############        print(" ", end="")
+        ##############    print(str_msg[i], end="")
+        ##############print("")
+
+        #// padding with zeros \\
+        number_of_chunks = math.ceil(len(str_msg) / BLOCK_SIZE)
+        if ((number_of_chunks * BLOCK_SIZE) - 64) < len(str_msg):
+            number_of_chunks += 1
+        num_of_zeros_padding = (number_of_chunks*BLOCK_SIZE)-64-len(str_msg)
+        ##############print("num_of_zeros_padding =", num_of_zeros_padding)
+        str_msg = str_msg+"0"*num_of_zeros_padding
+        ##############print("padded msg =", str_msg)
+
+        #// adding the last 64 bits that tells the input size in binary \\
+        msg_size_final_64_padding = str(bin(len(msg)))[2:].zfill(64)
+        ##############print("msg_size_final_64_padding =", msg_size_final_64_padding)
+        str_msg += msg_size_final_64_padding
+        ##############print("str_msg =", str_msg)
+        ##############print("number_of_chunks =", number_of_chunks)
+
+        ##############print(msg_size_final_64_padding)
+
+        # // creating the message schedule for each block\\
+        ##############print("\n")
+        for i in range(int(number_of_chunks)):
+
+            FIRST_HASH_VLUES = copy.deepcopy(initial_hash)
+
+            message_schedule = []
+            # we first append the first 16 words of 32 bits
+            for j in range(int(BLOCK_SIZE / WORD_SIZE)):
+                message_schedule.append(str_msg[(j * WORD_SIZE) + i*BLOCK_SIZE : ((j+1) * WORD_SIZE) + i*BLOCK_SIZE])
+
+
+            # we complete the 'message_schedule' to be in a fixed length of 64 elements
+            word_to_add = int(BLOCK_SIZE / WORD_SIZE)
+            for j in range(int(MAX_WORDS - (BLOCK_SIZE / WORD_SIZE))):
+                result = add(lower_sigma1(message_schedule[word_to_add-2]), message_schedule[word_to_add-7])
+                result = add(result, lower_sigma0(message_schedule[word_to_add-15]))
+                result = add(result, message_schedule[word_to_add-16])
+                message_schedule.append(result)
+                word_to_add += 1
+
+                #print(j + int(BLOCK_SIZE / WORD_SIZE), result)
+
+            ##############print("\n\n")
+            ##############
+            ##############for j in range(len(message_schedule)):
+            ##############    print(i+1, str(j).zfill(2), message_schedule[j])
+
+
+            # // compression \\
+
+            for j in range(len(message_schedule)):
+                T1 = add(upper_sigma1(initial_hash[e]), choice(initial_hash[e], initial_hash[f], initial_hash[g]))
+                T1 = add(T1, initial_hash[h])
+                T1 = add(T1, K[j])
+                T1 = add(T1, message_schedule[j])
+
+                T2 = add(upper_sigma0(initial_hash[a]), majority(initial_hash[a], initial_hash[b], initial_hash[c]))
+
+                #print("")
+                #print("T1 =", T1)
+                #print("T2 =", T2)
+
+                for k in range(len(initial_hash)):
+                    initial_hash[len(initial_hash) - k - 1] = initial_hash[len(initial_hash) - k - 2]
+                initial_hash[a] = add(T1, T2)
+                initial_hash[e] = add(initial_hash[e], T1)
+
+            ##############for k in range(len(initial_hash)):
+            ##############    print(initial_hash[k], initial_hash[k] == FIRST_HASH_VLUES[k])
+            ##############input(":")
+
+            # // Final Hash Value \\
+            ##############print("\n")
+            for k in range(len(initial_hash)):
+                initial_hash[k] = add(initial_hash[k], FIRST_HASH_VLUES[k])
+                #initial_hash[k] = str(hex(int(initial_hash[k], 2)))[2:].zfill(8)
+
+        for k in range(len(initial_hash)):
+            initial_hash[k] = str(hex(int(initial_hash[k], 2)))[2:].zfill(8)
+
+        return ''.join(initial_hash)
+        #return hashlib.sha256(msg).digest()
 
 
 

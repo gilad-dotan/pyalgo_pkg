@@ -4,10 +4,8 @@ from . import functions_for_in_time_compile
 from . import compiled_functions
 
 import math
-import time
 import copy
 import random
-import hashlib
 
 """
 sites used to create this encryption function:
@@ -100,7 +98,7 @@ class hashing_algorithms:
 
 
     @staticmethod
-    def sha256(msg):
+    def sha256(msg, return_as_a_binary=False):
         # // check if the msg entered is valid \\
         StringType = default_values.StringType
         ByteType = default_values.ByteType
@@ -326,8 +324,9 @@ class hashing_algorithms:
                 initial_hash[k] = add(initial_hash[k], FIRST_HASH_VLUES[k])
                 #initial_hash[k] = str(hex(int(initial_hash[k], 2)))[2:].zfill(8)
 
-        for k in range(len(initial_hash)):
-            initial_hash[k] = str(hex(int(initial_hash[k], 2)))[2:].zfill(8)
+        if not return_as_a_binary:
+            for k in range(len(initial_hash)):
+                initial_hash[k] = str(hex(int(initial_hash[k], 2)))[2:].zfill(8)
 
         return ''.join(initial_hash)
         #return hashlib.sha256(msg).digest()

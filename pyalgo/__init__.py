@@ -65,5 +65,6 @@ print("...DONE...")
 # sortalgo --> try to use recursion in "quick sort"
 #
 #
-# basic_modules --> in "default_functions" try to optimize "to_single_list"
+# basic_modules --> in "default_functions" try to optimize "to_single_list", maybe with regression
 # basic_modules --> in "default_functions" try to use regression
+# basic_modules --> in "default_functions" fix "_8chunk_to_7chunk" and "_8chunk_to_7chunk" to include the flag bites

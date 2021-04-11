@@ -530,6 +530,10 @@ class RSA():
             self.d += self.Phi
 
     def create_signature(self, msg_to_sign, d=None, N=None, apply_hashing=True, hashing_algorithm=None):
+
+        if apply_hashing and (hashing_algorithm == None):
+            hashing_algorithm = hashing_algorithms.sha256
+
         if N == None: n = self.N
         if d == None: d = self.d
 
@@ -546,10 +550,10 @@ class RSA():
             raise TypeError("'apply_hashing' needs to by a bool type (True or False)")
 
         if apply_hashing:
-            if hashing_algorithm == None:
-                msg_to_sign = hashing_algorithms.sha256(msg_to_sign)
-            else:
-                msg_to_sign = hashing_algorithm(msg_to_sign)
+            #if hashing_algorithm == None:
+            #    msg_to_sign = hashing_algorithms.sha256(msg_to_sign)
+            #else:
+            msg_to_sign = hashing_algorithm(msg_to_sign)
 
         return self.encrypt(msg_to_sign, N=N, e=d)
 
@@ -612,15 +616,23 @@ class RSA():
                 encrypted_text = bytes()
                 #(math.ceil(len(msg_to_encrypt) / chunk_jump))
                 pre_encrypted_chunk = msg_to_encrypt[0 * chunk_jump:1 * chunk_jump]
+
+                dump_list = []
+                for j in range(chunk_jump):
+                    dump_list.append(255)
+                pre_encrypted_chunk = bytes(dump_list)
+
                 self.basic_encrypt(pre_encrypted_chunk)
                 chunk_jump += 1
                 print(f"chunk_jump is now {chunk_jump}")
             except:
                 chunk_jump -= 1
-                #print(f"chunk_jump is {chunk_jump}")
+                print(f"chunk_jump is {chunk_jump}")
                 is_chunk_jump_correct = True
 
         print("chunk jump =", chunk_jump)
+        if chunk_jump == 0:
+            raise ValueError("please enter a bigger N")
         for i in range(math.ceil(len(msg_to_encrypt) / chunk_jump)):
             pre_encrypted_chunk = msg_to_encrypt[i * chunk_jump:(i + 1) * chunk_jump]
 
@@ -731,6 +743,8 @@ class RSA():
 
         msg_to_decrypt = int.from_bytes(msg_to_decrypt, "little")
 
+        if msg_to_decrypt >= N:
+            raise ValueError(f"'msg_to_decrypt' is too long (msg_to_decrypt >= N; N = {N})")
         msg_to_decrypt = pow(msg_to_decrypt, d, N)
 
         M = default_functions.values_to_single_number.from_whole_num(msg_to_decrypt, type_to_return="Bytes")

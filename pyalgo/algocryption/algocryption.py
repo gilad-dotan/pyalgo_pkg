@@ -610,8 +610,9 @@ class RSA():
         while not is_chunk_jump_correct:
             try:
                 if chunk_jump == len(msg_to_encrypt):
-                    chunk_jump -= 1
-                    is_chunk_jump_correct = True
+                    #chunk_jump -= 1
+                    #is_chunk_jump_correct = True
+                    raise ValueError #to jump straight to the except loop
 
                 encrypted_text = bytes()
                 #(math.ceil(len(msg_to_encrypt) / chunk_jump))

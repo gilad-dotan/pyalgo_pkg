@@ -1,5 +1,6 @@
 from pyalgo.basic_modules import default_functions, default_values
 from pyalgo.basic_modules.algocryption_default_values import Simple_Columnar_Transposition_default_values
+from pyalgo.basic_modules.algocryption_default_values import Caesar_Cipher_default_values
 from . import functions_for_in_time_compile
 from . import compiled_functions
 
@@ -233,41 +234,20 @@ class hashing_algorithms:
 
         if len(msg) > int("1"*64, 2):
             raise ValueError(f"the input msg should be less than {int('1'*64, 2)}")
-
-        ##############for i in range(len(str_msg)):
-        ##############    if i % 8 == 0:
-        ##############        print(" ", end="")
-        ##############    print(str_msg[i], end="")
-        ##############print("")
-
-        #// adds a single '1' at the end of the binary string \\
-        str_msg += "1"
-        ##############for i in range(len(str_msg)):
-        ##############    if i % 8 == 0:
-        ##############        print(" ", end="")
-        ##############    print(str_msg[i], end="")
-        ##############print("")
+        str_msg += "1" # adds a single '1' at the end of the binary string
 
         #// padding with zeros \\
         number_of_chunks = math.ceil(len(str_msg) / BLOCK_SIZE)
         if ((number_of_chunks * BLOCK_SIZE) - 64) < len(str_msg):
             number_of_chunks += 1
         num_of_zeros_padding = (number_of_chunks*BLOCK_SIZE)-64-len(str_msg)
-        ##############print("num_of_zeros_padding =", num_of_zeros_padding)
         str_msg = str_msg+"0"*num_of_zeros_padding
-        ##############print("padded msg =", str_msg)
 
         #// adding the last 64 bits that tells the input size in binary \\
         msg_size_final_64_padding = str(bin(len(msg)))[2:].zfill(64)
-        ##############print("msg_size_final_64_padding =", msg_size_final_64_padding)
         str_msg += msg_size_final_64_padding
-        ##############print("str_msg =", str_msg)
-        ##############print("number_of_chunks =", number_of_chunks)
-
-        ##############print(msg_size_final_64_padding)
 
         # // creating the message schedule for each block\\
-        ##############print("\n")
         for i in range(int(number_of_chunks)):
 
             FIRST_HASH_VLUES = copy.deepcopy(initial_hash)
@@ -287,13 +267,6 @@ class hashing_algorithms:
                 message_schedule.append(result)
                 word_to_add += 1
 
-                #print(j + int(BLOCK_SIZE / WORD_SIZE), result)
-
-            ##############print("\n\n")
-            ##############
-            ##############for j in range(len(message_schedule)):
-            ##############    print(i+1, str(j).zfill(2), message_schedule[j])
-
 
             # // compression \\
 
@@ -305,31 +278,20 @@ class hashing_algorithms:
 
                 T2 = add(upper_sigma0(initial_hash[a]), majority(initial_hash[a], initial_hash[b], initial_hash[c]))
 
-                #print("")
-                #print("T1 =", T1)
-                #print("T2 =", T2)
-
                 for k in range(len(initial_hash)):
                     initial_hash[len(initial_hash) - k - 1] = initial_hash[len(initial_hash) - k - 2]
                 initial_hash[a] = add(T1, T2)
                 initial_hash[e] = add(initial_hash[e], T1)
 
-            ##############for k in range(len(initial_hash)):
-            ##############    print(initial_hash[k], initial_hash[k] == FIRST_HASH_VLUES[k])
-            ##############input(":")
-
             # // Final Hash Value \\
-            ##############print("\n")
             for k in range(len(initial_hash)):
                 initial_hash[k] = add(initial_hash[k], FIRST_HASH_VLUES[k])
-                #initial_hash[k] = str(hex(int(initial_hash[k], 2)))[2:].zfill(8)
 
         if not return_as_a_binary:
             for k in range(len(initial_hash)):
                 initial_hash[k] = str(hex(int(initial_hash[k], 2)))[2:].zfill(8)
 
         return ''.join(initial_hash)
-        #return hashlib.sha256(msg).digest()
 
 
 
@@ -475,6 +437,9 @@ class XOR_Cipher:
                 if i < 0:
                     raise ValueError("any number in 'key' cannot be smaller than 0")
 
+XOR = XOR_Cipher
+
+
 
 
 
@@ -610,9 +575,9 @@ class RSA():
         while not is_chunk_jump_correct:
             try:
                 if chunk_jump == len(msg_to_encrypt):
-                    #chunk_jump -= 1
-                    #is_chunk_jump_correct = True
-                    raise ValueError #to jump straight to the except loop
+                    # chunk_jump -= 1
+                    # is_chunk_jump_correct = True
+                    raise ValueError  # to jump
 
                 encrypted_text = bytes()
                 #(math.ceil(len(msg_to_encrypt) / chunk_jump))
@@ -924,7 +889,7 @@ class Simple_Columnar_Transposition:
         """
         key is the key used to encrypt the msg
         the length of the key will determine the number of columns
-        if the key is a number then the columns would be read from left from right
+        if the key is a number then the columns would be read from left to right
 
         if the key is a list then each chunk should be encrypted be the corresponding key
 
@@ -950,7 +915,7 @@ class Simple_Columnar_Transposition:
         ListType = default_values.ListType
 
         if not (isinstance(key, IntType) or isinstance(key, StringType) or isinstance(key, ListType)):
-            raise ValueError("'key' should be an int, n string or a List")
+            raise ValueError("'key' should be an int, an string or a List")
         if not isinstance(chunk_size, IntType) or isinstance(chunk_size, StringType):
             raise ValueError("'chunk_size' should be an Int or a String")
 
@@ -958,11 +923,10 @@ class Simple_Columnar_Transposition:
             raise ValueError("'key' needs to be bigger that zero(0)")
         if isinstance(chunk_size, IntType):
             if (chunk_size < -1):
-                raise ValueError("'chunk_size' needs to be bigger that zero(0) or -1")
+                raise ValueError("'chunk_size' needs to be bigger than zero(0) or -1")
 
         if isinstance(chunk_size, StringType) and (not (chunk_size == "All")):
             raise ValueError("if 'chunk_size' is a string type then it should be set to 'All'")
-
 
     def encrypt(self, msg_to_encrypt, key=None, chunk_size=None, type_to_return="ByteArray"):
         if not type_to_return in Simple_Columnar_Transposition_default_values.encrypt_type_to_return_default_values:
@@ -1032,10 +996,6 @@ class Simple_Columnar_Transposition:
                 return bytearray(a, 'utf-8')
             if isinstance(encrypted_list[0], default_values.IntType):
                 return bytearray(encrypted_list)
-
-
-
-
 
     def decrypt(self, msg_to_decrypt, key=None, chunk_size=None, type_to_return="ByteArray"):
 
@@ -1301,7 +1261,6 @@ class Simple_Columnar_Transposition:
         for i in content:
             a = i[:-1]
             b = not i[0] == "["
-            0==0
             if i[:-1] == "[chunk_size]":
                 key_phase = False
                 chunk_phase = True
@@ -1330,3 +1289,64 @@ class Simple_Columnar_Transposition:
     def clear_key(self):
         del self.key
         del self.chunk_size
+
+SCT = Simple_Columnar_Transposition
+
+
+
+
+
+class Caesar_Cipher:
+
+    def __init__(self, key=5, chars_list=None):
+        """
+        key is the key used to encrypt the msg
+        the length of the key will determine the number of the letter to shift the the left
+        """
+
+        IntType = default_values.IntType
+        if (chars_list == None):
+            chars_list = Caesar_Cipher_default_values.default_chars
+
+        self.chars_values_length = len(chars_list)
+
+        if isinstance(key, IntType) and key < 0:
+            key = self.chars_values_length - (abs(key) % self.chars_values_length)
+
+        if isinstance(key, IntType) and key >= self.chars_values_length:
+            key = key % self.chars_values_length
+
+        self.key = key
+        print(f"key = {key}")
+
+        self.check_if_key_is_valid()
+
+    def check_if_key_is_valid(self, key=None):
+        if key == None:  key = self.key
+
+        IntType = default_values.IntType
+
+        if not isinstance(key, IntType):
+            raise TypeError("Your key can only be an Int")
+
+        if isinstance(key, IntType) and (key < 0 or key >= self.chars_values_length):
+            raise ValueError(f"Your key cannot be less then zero or greater than {self.chars_values_length}")
+
+    def encrypt(self, msg_to_encrypt, key=None, chunk_size=None, type_to_return="ByteArray"):
+        pass
+
+    def decrypt(self, msg_to_decrypt, key=None, chunk_size=None, type_to_return="ByteArray"):
+        pass
+
+    def clear_key(self):
+        #del self.key
+        pass
+
+    def save_key(self, key=[None, None], dir=None, filename='sct.key'):
+        print("saved")
+
+    def load_key(self, dir):
+       pass
+
+    def clear_key(self):
+        pass
